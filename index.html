@@ -953,16 +953,28 @@
 
   // Waitlist forms
   function handleForm(form, emailId, successId) {
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById(emailId).value;
-      // Store locally for now
-      const emails = JSON.parse(localStorage.getItem('waitlist') || '[]');
-      if (!emails.includes(email)) emails.push(email);
-      localStorage.setItem('waitlist', JSON.stringify(emails));
-
-      form.style.display = 'none';
-      document.getElementById(successId).style.display = 'block';
+      
+      try {
+        const res = await fetch('https://n8n.nolifecontent.xyz/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+          form.style.display = 'none';
+          document.getElementById(successId).style.display = 'block';
+        } else {
+          alert('Something went wrong. Please try again.');
+        }
+      } catch (err) {
+        alert('Something went wrong. Please try again.');
+      }
     });
   }
 
